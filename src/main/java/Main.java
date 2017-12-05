@@ -1,16 +1,10 @@
-import sun.reflect.generics.tree.Tree;
-
-import javax.swing.tree.TreeNode;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.Set;
-
 
 
 public class Main {
@@ -25,20 +19,14 @@ public class Main {
   // 0.821699999999999999 for tau = 2 0.8, 0.7, 0.6
   // 0.52 - 1true and stop
 
-  private static BigDecimal maxRevenue = zero();
-
-
-
   public static void main(String[] args) {
     System.out.println("Welcome!");
     calculate();
   }
 
-
   private static void calculate() {
     System.out.println("Calculating for tau=" + TAU.toString() + " and initial BETAS=" + Arrays.toString(BETA));
 
-    // PROBLEM?? why costs here == 0?
     TreeNodeNek root = new TreeNodeNek(-1, null, zero(), zero());
     ArrayList<TreeNodeNek> rootList = new ArrayList<>(1);
     rootList.add(root);
@@ -54,81 +42,7 @@ public class Main {
     System.out.println("Optimal sub trees: ");
     TreeNodeNek.printOptimalTreeInfo(root);
     System.out.println("Max revenue: " + root.revenue.toString());
-//    optimalSubTrees.optimalNodes.stream()
-//        .map(nodeIndex -> optimalSubTrees.children.get(nodeIndex))
-//        .forEach(TreeNodeNek::printTree);
   }
-
-
-//  private static TreeNodeNek calculateOptimalSubTrees(TreeNodeNek root) {
-
-//    ArrayList<TreeNodeNek> nodesToGrow = new ArrayList<>();
-
-//    nodesToGrow.add(root);
-
-
-
-
-//    for beta
-//            max = calculate(beta+) + calculate(beta-)
-//    if max >= parent's => put beta
-//
-//    return max
-//
-//
-//
-//    for (int i = 0; i <BETA.length; i++) {
-//      currentNodeRevenue = 0
-//      if terminal {
-//        currentNodeRevenue = revenue
-//        if parent.max < currentNodeRevenue {
-//          update parent max = currentNodeRevenue
-//          set of max options.put node
-//        }
-//        if parent.max == currentNodeRevenue {
-//          set of max options.put node
-//        }
-//        continue;
-//      }
-//      get childnodes(i)
-//
-//    }
-
-//    List<TreeNodeNek> leaves = root.getLeaves();
-//    for (TreeNodeNek leaf : leaves) {
-//      updateRevenues(leaf);
-//    }
-//      if (parentBestChoices.size() == 0)
-//    }
-//
-//        if (node.parent.children.size() == 0) {
-//          node.parent.subTreeRevenue = node.revenue;
-//          HashSet<Integer> nodes = new HashSet<>();
-//          nodes.add(node.parent.children.indexOf(node));
-//          node.parent.optimalNodes = nodes;
-//        } else {
-//          calculateOptimalSubTrees(node.parent);
-//        }
-
-
-//    boolean finishedSubTree = false;
-//
-//    while (!nodesToGrow.isEmpty()) {
-//      TreeNodeNek nodeToGrow = nodesToGrow.remove(0);
-////      nodeToGrow.children;
-//    }
-//  }
-
-//  private static void updateRevenues(TreeNodeNek node) {
-//    List<TreeNodeNek> leaves = node.getLeaves();
-//    for (TreeNodeNek leaf : leaves) {
-//      updateChoiceRevenuesFromNode(leaf);
-//    }
-////    Map<Integer, BigDecimal> parentBestChoices = node.parent.bestChoices;
-////    BigDecimal bestRevenue = parentBestChoices.get(node.option);
-////    parentBestChoices.put(node.option, bestRevenue == null ? node.revenue : bestRevenue.add(node.revenue));
-////    updateRevenues(node.parent);
-//  }
 
   private static BigDecimal updateChoiceRevenuesFromNode(TreeNodeNek node) {
     if (node.children.size() == 1) {
@@ -205,12 +119,6 @@ public class Main {
         beta_updated[i] = update ?
                 qBeta.divide(qBeta.add((one().subtract(QU, mc)).multiply(one().subtract(old_beta, mc), mc), mc), mc) :
                 q1Beta.divide(q1Beta.add(QU.multiply(one().subtract(old_beta, mc), mc), mc), mc) ;
-
-//        beta_updated[i] = update ?
-//                qBeta.divide(qBeta.add((one().subtract(QU)).multiply(one().subtract(old_beta))), RoundingMode.HALF_EVEN) :
-//                q1Beta.divide(q1Beta.add(QU.multiply(one().subtract(old_beta))), RoundingMode.HALF_EVEN) ;
-
-
       }
     }
     BigDecimal maxBeta = zero();
@@ -239,37 +147,4 @@ public class Main {
   private static BigDecimal zero() {
     return new BigDecimal("0", mc);
   }
-
 }
-
-
-
-
-//перебирать все деревья, хранить максимум ревенью, если нашли такой же ревенью, добавить в мешок, если нашли дороже ревенью, очистить мешок и добавить это одно дерево.
-
-
-
-
-
-
-
-//      List<TreeNodeNek> childrenCurrentLevelToPopulate = new ArrayList<TreeNodeNek>(0);
-//      for (TreeNodeNek child : childrenToPopulate) {
-//
-//      }
-//      for (TreeNodeNek child : root.children) {
-//        if (child.getLevel() != lvl) {
-//          for
-//        }
-//      }
-//      for (int j = 0; j < betaLength - 1; j++) {
-//
-//      }
-
-//    TreeNodeNek currentRoot; // = new TreeNodeNek("0");
-//    for (int i = 0; i < tau; i++) {
-//      for (int j = 0; j < beta.length - 1; j++) {
-//
-//      }
-//    }
-

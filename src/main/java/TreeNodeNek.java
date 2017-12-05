@@ -1,14 +1,11 @@
-import sun.reflect.generics.tree.Tree;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 public class TreeNodeNek implements Iterable<TreeNodeNek> {
 
@@ -17,27 +14,18 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   public BigDecimal cost;
   public BigDecimal revenue;
 
-//  public BigDecimal subTreeRevenue = zero();
-//  public Set<Integer> optimalNodes = new HashSet<>();
-
   public Map<Integer, BigDecimal> choiceRevenue = new HashMap<>();
-
   public List<Integer> bestChoices = new ArrayList<>();
-  public BigDecimal maxChildRevenue = zero();
 
   public TreeNodeNek parent;
   public List<TreeNodeNek> children;
   private List<TreeNodeNek> elementsIndex;
-
-
-
 
   public TreeNodeNek(int option, Boolean resolution, BigDecimal cost, BigDecimal revenue) {
     this.option = option;
     this.resolution = resolution;
     this.cost = cost;
     this.revenue = revenue;
-//    this.level = 0;
     this.children = new LinkedList<TreeNodeNek>();
     this.elementsIndex = new LinkedList<TreeNodeNek>();
     this.elementsIndex.add(this);
@@ -69,7 +57,6 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   }
 
   public int getLevel() {
-//    return level;
     if (this.isRoot())
       return 0;
     else
@@ -181,9 +168,6 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return cost.add(parent.calculateCosts());
   }
 
-
-
-
   public List<Boolean> getInvestigations(int beta) {
     if (option == 0) {
       System.out.println("ERROR: Tried to encode 0 node !!!!!!!!!!!!!!!");
@@ -229,13 +213,5 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     }
     return null;
   }
-
-
-//    if (option.toString().startsWith(Integer.toString(beta))) {
-//      return 1 + (parent == null ? 0 : parent.getNumberOfInvestigations(beta));
-//    } else {
-//      return parent == null ? 0 : parent.getNumberOfInvestigations(beta);
-//    }
-
 
 }
