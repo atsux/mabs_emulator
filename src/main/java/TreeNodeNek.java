@@ -36,11 +36,11 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   }
 
   private static BigDecimal zero() {
-    return new BigDecimal("0", Main.mc);
+    return new BigDecimal("0", OptimalTree.mc);
   }
 
   private static BigDecimal one() {
-    return new BigDecimal("1", Main.mc);
+    return new BigDecimal("1", OptimalTree.mc);
   }
 
   public TreeNodeNek addChild(int option, Boolean resolution, BigDecimal cost) {
@@ -184,7 +184,7 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return (parent == null) ? out : parent.getInvestigations(beta);
   }
 
-  public BigDecimal calculateProbability(BigDecimal[] betas, BigDecimal qu) {
+  public BigDecimal calculateProbability(List<BigDecimal> betas, BigDecimal qu) {
     if (option == 0) {
       System.out.println("ERROR: Tried to encode 0 node !!!!!!!!!!!!!!!");
     }
@@ -194,14 +194,14 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     } else {
       BigDecimal probability;
       if (resolution) {
-        final BigDecimal q1Beta1 = (one().subtract(qu, Main.mc)).multiply(one().subtract(betas[option - 1], Main.mc), Main.mc);
-        probability = qu.multiply(betas[option - 1], Main.mc).add(q1Beta1, Main.mc);
+        final BigDecimal q1Beta1 = (one().subtract(qu, OptimalTree.mc)).multiply(one().subtract(betas.get(option - 1), OptimalTree.mc), OptimalTree.mc);
+        probability = qu.multiply(betas.get(option - 1), OptimalTree.mc).add(q1Beta1, OptimalTree.mc);
       } else {
-        final BigDecimal q1Beta = (one().subtract(qu, Main.mc)).multiply(betas[option - 1], Main.mc);
-        final BigDecimal qBeta1 = qu.multiply(one().subtract(betas[option - 1], Main.mc), Main.mc);
-        probability = q1Beta.add(qBeta1, Main.mc);
+        final BigDecimal q1Beta = (one().subtract(qu, OptimalTree.mc)).multiply(betas.get(option - 1), OptimalTree.mc);
+        final BigDecimal qBeta1 = qu.multiply(one().subtract(betas.get(option - 1), OptimalTree.mc), OptimalTree.mc);
+        probability = q1Beta.add(qBeta1, OptimalTree.mc);
       }
-      return parent.calculateProbability(betas, qu).multiply(probability, Main.mc);
+      return parent.calculateProbability(betas, qu).multiply(probability, OptimalTree.mc);
     }
   }
 
@@ -214,4 +214,8 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return null;
   }
 
+  public boolean has3dOption(ArrayList<BigDecimal> betas) {
+    return this.getRoot().bestChoices.contains(3) &&
+            (betas.get(2) != betas.get(1));
+  }
 }
