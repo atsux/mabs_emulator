@@ -4,17 +4,17 @@ import java.util.HashMap;
 
 public class MainRunner {
 
-  private static final int tau = 2;
+  private static final int tau = 7;
   private static final String delta = "0.98";
   private static final String cost = "0.002";
   private static final String qu = "0.7";
 
   public static void main(String[] args) {
     checkspecificBetas();
-
+//
 //    long startTime = System.currentTimeMillis();
 //
-//    String s_step = "0.01"; //0.2 0.7 0.01  .. 0.5 0.99
+//    String s_step = "0.1"; //0.2 0.7 0.01  .. 0.5 0.99
 //    BigDecimal first_step = getDec("0.00");
 //    BigDecimal step = getDec(s_step);
 //
@@ -58,14 +58,18 @@ public class MainRunner {
   private static void checkspecificBetas() {
     ArrayList<BigDecimal> betas = new ArrayList<>(3);
 
-    betas.add(getDec("0.70"));
-//    betas.add(getDec("0.475"));
-    betas.add(getDec("0.5"));
-    betas.add(getDec("0.50000"));
+//    betas.add(getDec("0.70"));
+////    betas.add(getDec("0.475"));
+//    betas.add(getDec("0.5"));
+//    betas.add(getDec("0.50000"));
 
 //    betas.add(getDec("0.474973000000000"));
 //    betas.add(getDec("0.469290000000000"));
 //    betas.add(getDec("0.464751000000000"));
+
+    betas.add(getDec("0.475000000000"));
+    betas.add(getDec("0.4690000000000"));
+    betas.add(getDec("0.465000000000"));
 
     TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
     TreeNodeNek.printOptimalTreeInfo(result);

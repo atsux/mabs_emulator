@@ -184,25 +184,60 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return (parent == null) ? out : parent.getInvestigations(beta);
   }
 
+  public Map<Boolean, Integer> getUpdates(int beta) {
+    if (option == 0) {
+      System.out.println("ERROR: Tried to encode 0 node !!!!!!!!!!!!!!!");
+    }
+    Map<Boolean, Integer> out = new HashMap<>();
+
+    if (option == beta) {
+      if (parent != null) {
+        out = parent.getUpdates(beta);
+      }
+      out.put(resolution, out.getOrDefault(resolution, 0) + 1);
+      return out;
+    }
+    return (parent == null) ? out : parent.getUpdates(beta);
+  }
+
   public BigDecimal calculateProbability(List<BigDecimal> betas, BigDecimal qu) {
     if (option == 0) {
       System.out.println("ERROR: Tried to encode 0 node !!!!!!!!!!!!!!!");
     }
+    BigDecimal probability = one();
 
-    if (parent == null) {
-      return one();
-    } else {
-      BigDecimal probability;
-      if (resolution) {
-        final BigDecimal q1Beta1 = (one().subtract(qu, OptimalTree.mc)).multiply(one().subtract(betas.get(option - 1), OptimalTree.mc), OptimalTree.mc);
-        probability = qu.multiply(betas.get(option - 1), OptimalTree.mc).add(q1Beta1, OptimalTree.mc);
-      } else {
-        final BigDecimal q1Beta = (one().subtract(qu, OptimalTree.mc)).multiply(betas.get(option - 1), OptimalTree.mc);
-        final BigDecimal qBeta1 = qu.multiply(one().subtract(betas.get(option - 1), OptimalTree.mc), OptimalTree.mc);
-        probability = q1Beta.add(qBeta1, OptimalTree.mc);
+    if (parent != null) {
+      for (int i = 1; i <= betas.size(); i++) {
+        Map<Boolean, Integer> updates = this.getUpdates(i);
+        BigDecimal betaValue = betas.get(i - 1);
+
+        BigDecimal qBeta = qu
+                .pow(updates.getOrDefault(Boolean.TRUE, 0));
+
+        BigDecimal q1Beta = one()
+                .subtract(qu, OptimalTree.mc)
+                .pow(updates.getOrDefault(Boolean.FALSE, 0));
+
+        BigDecimal qBeta1 = qu
+                .pow(updates.getOrDefault(Boolean.FALSE, 0));
+
+        BigDecimal q1Beta1 = one()
+                .subtract(qu, OptimalTree.mc)
+                .pow(updates.getOrDefault(Boolean.TRUE, 0));
+
+        final BigDecimal betaQ = betaValue
+                .multiply(qBeta, OptimalTree.mc)
+                .multiply(q1Beta, OptimalTree.mc);
+
+        final BigDecimal beta1Q = one()
+                .subtract(betaValue, OptimalTree.mc)
+                .multiply(qBeta1, OptimalTree.mc)
+                .multiply(q1Beta1, OptimalTree.mc);
+
+        probability = probability.multiply(betaQ.add(beta1Q, OptimalTree.mc));
       }
-      return parent.calculateProbability(betas, qu).multiply(probability, OptimalTree.mc);
     }
+    return probability;
   }
 
   public TreeNodeNek getIthBetaChild(int beta, boolean resolution) {

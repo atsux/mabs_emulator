@@ -22,6 +22,7 @@ public class OptimalTree {
   public static void main(String[] args) {
     System.out.println("Welcome!");
     ArrayList<BigDecimal> betas = new ArrayList<>(3);
+    // rewrite to always use option labeles instead of converting 0<>1
     betas.add(new BigDecimal("0.7", mc));
     betas.add(new BigDecimal("0.6", mc));
     betas.add(new BigDecimal("0.5", mc));
