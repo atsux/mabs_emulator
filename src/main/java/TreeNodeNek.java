@@ -253,4 +253,10 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return this.getRoot().bestChoices.contains(3) &&
             (betas.get(2) != betas.get(1));
   }
+
+  public boolean hasOnly3dOption(ArrayList<BigDecimal> betas) {
+    return this.getRoot().bestChoices.size() == 1 &&
+            has3dOption(betas);
+  }
+
 }

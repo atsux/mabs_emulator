@@ -4,55 +4,112 @@ import java.util.HashMap;
 
 public class MainRunner {
 
-  private static final int tau = 7;
+  private static final int tau = 5;
   private static final String delta = "0.98";
   private static final String cost = "0.002";
   private static final String qu = "0.7";
 
   public static void main(String[] args) {
-    checkspecificBetas();
-//
-//    long startTime = System.currentTimeMillis();
-//
-//    String s_step = "0.1"; //0.2 0.7 0.01  .. 0.5 0.99
-//    BigDecimal first_step = getDec("0.00");
-//    BigDecimal step = getDec(s_step);
-//
-//    HashMap<BigDecimal, ArrayList<BigDecimal>> revenueToBetas = new HashMap<>();
-//    long count = 0;
-//
-//    for (BigDecimal beta3 = first_step; beta3.compareTo(one()) <= 0; beta3 = beta3.add(step) ) {
-//      for (BigDecimal beta2 = beta3; beta2.compareTo(one()) <= 0; beta2 = beta2.add(step)) {
-//        for (BigDecimal beta1= beta2; beta1.compareTo(one()) <= 0; beta1 = beta1.add(step)) {
-//
-//          ArrayList<BigDecimal> betas = new ArrayList<>(3);
-//          betas.add(beta1);
-//          betas.add(beta2);
-//          betas.add(beta3);
-//
-//          TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
-//          if (result.has3dOption(betas)) {
-//            System.out.println("Yes for betas: " + betas.toString());
-//            revenueToBetas.put(result.revenue, betas);
-//          }
-//
-//          count++;
-//          if (count%500 == 0) {
-//            System.out.println(count);
-//          }
-//
-//
-//        }
-//      }
-//    }
-//
-//    System.out.println("Size: " + revenueToBetas.size());
-//
-//    long stopTime = System.currentTimeMillis();
-//    long minutes = ((stopTime - startTime) / 1000)  / 60;
-//    long seconds = ((stopTime - startTime) / 1000) % 60;
-////    long seconds = TimeUnit.MILLISECONDS.toSeconds(stopTime - startTime);
-//    System.out.println("Completed in: " + minutes + " min " + seconds + " seconds");
+//    checkspecificBetas();
+
+//    runWithBetasInRange();
+
+    runWithRandomBetas(1000);
+
+  }
+
+  private static void runWithRandomBetas(Integer rounds) {
+
+    for (int i = 0; i < rounds; i++) {
+      ArrayList<BigDecimal> betas = generateRandomBetas();
+
+//      System.out.println("betas: " + betas.toString());
+
+      TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
+      if (result.hasOnly3dOption(betas)) {
+        System.out.println("Yes for betas: " + betas.toString());
+      }
+
+      if (i%100 == 0) {
+        System.out.println(i);
+      }
+
+    }
+
+  }
+
+  public static BigDecimal generateRandomBigDecimalFromRange(BigDecimal min, BigDecimal max) {
+    BigDecimal randomBigDecimal = min.add(new BigDecimal(Math.random(), OptimalTree.mc).multiply(max.subtract(min)));
+    // uncomment to return scaled to 0.0000
+    return randomBigDecimal; //.setScale(4,BigDecimal.ROUND_HALF_UP);
+  }
+
+  private static BigDecimal getRandomBeta(String min, String max) {
+    return generateRandomBigDecimalFromRange(
+            new BigDecimal(min, OptimalTree.mc),
+            // uncomment to return scaled to 0.0000
+            new BigDecimal(max, OptimalTree.mc) //.setScale(4, BigDecimal.ROUND_HALF_UP)
+    );
+
+  }
+
+  private static ArrayList<BigDecimal> generateRandomBetas() {
+
+    BigDecimal beta1 = getRandomBeta("0.0", "1.0");
+    BigDecimal beta2 = generateRandomBigDecimalFromRange(zero(), beta1);
+    BigDecimal beta3 = generateRandomBigDecimalFromRange(zero(), beta2);
+
+    ArrayList<BigDecimal> betas = new ArrayList<>(3);
+    betas.add(beta1);
+    betas.add(beta2);
+    betas.add(beta3);
+
+    return betas;
+
+  }
+
+  private static void runWithBetasInRange() {
+    long startTime = System.currentTimeMillis();
+
+    String s_step = "0.1"; //0.2 0.7 0.01  .. 0.5 0.99
+    BigDecimal first_step = getDec("0.00");
+    BigDecimal step = getDec(s_step);
+
+    HashMap<BigDecimal, ArrayList<BigDecimal>> revenueToBetas = new HashMap<>();
+    long count = 0;
+
+    for (BigDecimal beta3 = first_step; beta3.compareTo(one()) <= 0; beta3 = beta3.add(step) ) {
+      for (BigDecimal beta2 = beta3; beta2.compareTo(one()) <= 0; beta2 = beta2.add(step)) {
+        for (BigDecimal beta1= beta2; beta1.compareTo(one()) <= 0; beta1 = beta1.add(step)) {
+
+          ArrayList<BigDecimal> betas = new ArrayList<>(3);
+          betas.add(beta1);
+          betas.add(beta2);
+          betas.add(beta3);
+
+          TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
+          if (result.has3dOption(betas)) {
+            System.out.println("Yes for betas: " + betas.toString());
+            revenueToBetas.put(result.revenue, betas);
+          }
+
+          count++;
+          if (count%500 == 0) {
+            System.out.println(count);
+          }
+
+
+        }
+      }
+    }
+
+    System.out.println("Size: " + revenueToBetas.size());
+
+    long stopTime = System.currentTimeMillis();
+    long minutes = ((stopTime - startTime) / 1000)  / 60;
+    long seconds = ((stopTime - startTime) / 1000) % 60;
+//    long seconds = TimeUnit.MILLISECONDS.toSeconds(stopTime - startTime);
+    System.out.println("Completed in: " + minutes + " min " + seconds + " seconds");
   }
 
   private static void checkspecificBetas() {
