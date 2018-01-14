@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class TreeNodeNek implements Iterable<TreeNodeNek> {
@@ -249,14 +250,24 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return null;
   }
 
-  public boolean has3dOption(ArrayList<BigDecimal> betas) {
+  private boolean has3dOptionWithUniqueFirst(ArrayList<BigDecimal> betas) {
     return this.getRoot().bestChoices.contains(3) &&
             (betas.get(2) != betas.get(1));
   }
 
+  public boolean has3dOption() {
+    return this.getRoot().bestChoices.contains(3);
+  }
+
   public boolean hasOnly3dOption(ArrayList<BigDecimal> betas) {
     return this.getRoot().bestChoices.size() == 1 &&
-            has3dOption(betas);
+            has3dOptionWithUniqueFirst(betas);
+  }
+
+  public String getChoicesString() {
+    return this.bestChoices.stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","));
   }
 
 }
