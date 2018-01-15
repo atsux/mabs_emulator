@@ -17,7 +17,7 @@ public class MainRunner {
   private static final String delta = "0.98";
   private static final String cost = "0.002";
   private static final String qu = "0.7";
-  private static final int BETAS_SIZE = 3;
+  private static final int BETAS_SIZE = 4;
 
   public static void main(String[] args) {
 //    checkspecificBetas();
@@ -77,13 +77,11 @@ public class MainRunner {
   private static ArrayList<BigDecimal> generateRandomBetas(int betasSize) {
     ArrayList<BigDecimal> betas = new ArrayList<>(betasSize);
     betas.add(getRandomBeta("0.0", "1.0"));
-
     // generate sorted betas
     for (int i = 1; i < betasSize; i++) {
       BigDecimal beta = generateRandomBigDecimalFromRange(zero(), betas.get(betas.size() - 1));
       betas.add(beta);
     }
-
     // unsorted betas for testing
 //    for (int i = 1; i < betasSize; i++) {
 //      betas.add(getRandomBeta("0.0", "1.0"));
@@ -136,7 +134,7 @@ public class MainRunner {
   }
 
   private static void checkspecificBetas() {
-    ArrayList<BigDecimal> betas = new ArrayList<>(4);
+    ArrayList<BigDecimal> betas = new ArrayList<>(3);
 
     double[] betasArray = {0.03423, 0.02087, 0.01933};
     for (double beta : betasArray) {

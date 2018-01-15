@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.SourceTree;
+
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -8,7 +10,9 @@ import java.util.Map;
 
 public class OptimalTree {
 
+  public static final int EPS_DECIMALS = 20;
   public static MathContext mc = new MathContext(50, RoundingMode.HALF_EVEN);
+  public static MathContext mcEpsilon = new MathContext(EPS_DECIMALS, RoundingMode.HALF_UP);
 //  public static MathContext mc = MathContext.DECIMAL128;
 
   private static Integer TAU;
@@ -70,16 +74,25 @@ public class OptimalTree {
     BigDecimal maxRevenue = zero();
     for (Map.Entry<Integer, BigDecimal> entry : node.choiceRevenue.entrySet()) {
       BigDecimal optionRevenue = entry.getValue();
-      if (maxRevenue.compareTo(optionRevenue) < 0) {
+      if (compareWithEpsilon(maxRevenue, optionRevenue) < 0) {
         maxRevenue = optionRevenue;
         node.bestChoices = new ArrayList<>();
         node.bestChoices.add(entry.getKey());
-      } else if (maxRevenue.compareTo(optionRevenue) == 0) {
+      } else if (compareWithEpsilon(maxRevenue, optionRevenue) == 0) {
         node.bestChoices.add(entry.getKey());
       }
     }
     node.revenue = maxRevenue;
     return maxRevenue;
+  }
+
+  private static int compareWithEpsilon(BigDecimal maxRevenue, BigDecimal optionRevenue) {
+//      return maxRevenue.compareTo(optionRevenue);
+    BigDecimal maxRevenueScaled = new BigDecimal(String.valueOf(maxRevenue));
+    BigDecimal optionRevenueScaled = new BigDecimal(String.valueOf(optionRevenue));
+    maxRevenueScaled = maxRevenueScaled.setScale(EPS_DECIMALS, BigDecimal.ROUND_HALF_UP);
+    optionRevenueScaled = optionRevenueScaled.setScale(EPS_DECIMALS, BigDecimal.ROUND_HALF_UP);
+    return maxRevenueScaled.subtract(optionRevenueScaled, mcEpsilon).compareTo(zero());
   }
 
 
