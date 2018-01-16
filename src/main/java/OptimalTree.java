@@ -1,5 +1,3 @@
-import com.sun.org.apache.xpath.internal.SourceTree;
-
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ public class OptimalTree {
     betas.add(new BigDecimal("0.5", mc));
     TreeNodeNek result = runCalculation(3, "0.7", "0.002", "0.98", betas);
     System.out.println("Generated tree: ");
-    TreeNodeNek.printOptimalTreeInfo(result);
+    result.printOptimalTreeInfo();
     System.out.println("Max revenue: " + result.revenue.toString());
 
   }
@@ -88,11 +86,16 @@ public class OptimalTree {
 
   private static int compareWithEpsilon(BigDecimal maxRevenue, BigDecimal optionRevenue) {
 //      return maxRevenue.compareTo(optionRevenue);
-    BigDecimal maxRevenueScaled = new BigDecimal(String.valueOf(maxRevenue));
-    BigDecimal optionRevenueScaled = new BigDecimal(String.valueOf(optionRevenue));
-    maxRevenueScaled = maxRevenueScaled.setScale(EPS_DECIMALS, BigDecimal.ROUND_HALF_UP);
-    optionRevenueScaled = optionRevenueScaled.setScale(EPS_DECIMALS, BigDecimal.ROUND_HALF_UP);
+
+    BigDecimal optionRevenueScaled = getTruncated(optionRevenue, EPS_DECIMALS);
+    BigDecimal maxRevenueScaled = getTruncated(maxRevenue, EPS_DECIMALS);
     return maxRevenueScaled.subtract(optionRevenueScaled, mcEpsilon).compareTo(zero());
+  }
+
+  public static BigDecimal getTruncated(BigDecimal original, int decimals) {
+    BigDecimal truncated = new BigDecimal(String.valueOf(original));
+    truncated = truncated.setScale(decimals, BigDecimal.ROUND_HALF_UP);
+    return truncated;
   }
 
 

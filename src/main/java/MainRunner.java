@@ -8,32 +8,34 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainRunner {
 
-  private static final int tau = 4;
+  private static final int tau = 3;
   private static final String delta = "0.98";
   private static final String cost = "0.002";
   private static final String qu = "0.7";
   private static final int BETAS_SIZE = 4;
 
   public static void main(String[] args) {
-//    checkspecificBetas();
+    checkspecificBetas();
 
 //    runWithBetasInRange();
 
-    runWithRandomBetas(100000);
+//    runWithRandomBetas(10000);
 
   }
 
   private static void runWithRandomBetas(Integer rounds) {
     Path file = Paths.get("betas");
+    Path fileUnique = Paths.get("betas_unique");
 
     for (int i = 0; i < rounds; i++) {
-      ArrayList<BigDecimal> betas = generateRandomBetas(BETAS_SIZE);
-
+      List<BigDecimal> betas = generateRandomBetas(BETAS_SIZE);
       TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
 
       if (result.has3dOption()) {
@@ -41,13 +43,12 @@ public class MainRunner {
 
         try {
           Files.write(file, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+          if (result.hasOnly3dOption(betas)) {
+            Files.write(fileUnique, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+          }
         } catch (IOException e) {
           e.printStackTrace();
         }
-      }
-
-      if (result.hasOnly3dOption(betas)) {
-        System.out.println("Yes for unique betas: " + betas.toString());
       }
 
       if (i%100 == 0) {
@@ -74,18 +75,19 @@ public class MainRunner {
 
   }
 
-  private static ArrayList<BigDecimal> generateRandomBetas(int betasSize) {
-    ArrayList<BigDecimal> betas = new ArrayList<>(betasSize);
+  private static List<BigDecimal> generateRandomBetas(int betasSize) {
+    List<BigDecimal> betas = new ArrayList<>(betasSize);
     betas.add(getRandomBeta("0.0", "1.0"));
-    // generate sorted betas
+    // skewed betas
     for (int i = 1; i < betasSize; i++) {
       BigDecimal beta = generateRandomBigDecimalFromRange(zero(), betas.get(betas.size() - 1));
       betas.add(beta);
     }
-    // unsorted betas for testing
+    // uniformly distributed betas
 //    for (int i = 1; i < betasSize; i++) {
 //      betas.add(getRandomBeta("0.0", "1.0"));
 //    }
+//    betas = betas.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
     return betas;
   }
 
@@ -134,22 +136,12 @@ public class MainRunner {
   }
 
   private static void checkspecificBetas() {
-    ArrayList<BigDecimal> betas = new ArrayList<>(3);
+    ArrayList<BigDecimal> betas = new ArrayList<>(4);
 
-    double[] betasArray = {0.03423, 0.02087, 0.01933};
+    double[] betasArray = {0.65983, 0.65911, 0.65635, 0.21174};
     for (double beta : betasArray) {
       betas.add(getDec(beta));
     }
-    //    betas.add(getDec("0.70"));
-////    betas.add(getDec("0.475"));
-//    betas.add(getDec("0.5"));
-//    betas.add(getDec("0.50000"));
-
-//    betas.add(getDec("0.474973000000000"));
-//    betas.add(getDec("0.469290000000000"));
-//    betas.add(getDec("0.464751000000000"));
-
-//    0.04660, 0.02650, 0.02498, 0.00948
 
 //    betas.add(getDec("0.04660"));
 //    betas.add(getDec("0.02650"));
@@ -157,7 +149,12 @@ public class MainRunner {
 //    betas.add(getDec("0.00948"));
 
     TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
-    TreeNodeNek.printOptimalTreeInfo(result);
+    System.out.println("For betas: " + betas.stream()
+            .map(beta -> OptimalTree.getTruncated(beta, 5))
+            .collect(Collectors.toList())
+            .toString());
+//    result.printOptimalTreeInfo();
+    result.printOptimalPlansInfo();
     if (result.hasOnly3dOption(betas)) {
       System.out.println("Yes for betas: " + betas.toString());
     }

@@ -117,13 +117,13 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
 
   @Override
   public String toString() {
-    return String.valueOf(option) + String.valueOf(resolution)
+    return String.valueOf(option) + getFormattedResolution(TreeNodeNek.this)
         ;
   }
 
   public String toStringFullOverflow() {
     return "option: " + String.valueOf(option) +
-     "resolut: " + String.valueOf(resolution) +
+     "resolut: " + getFormattedResolution(TreeNodeNek.this) +
         "; parent: " + parent +
         "; children: " + children.toString()
         ;
@@ -132,17 +132,48 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   public static void printTree(TreeNodeNek treeRoot) {
     for (TreeNodeNek node : treeRoot) {
       String indent = createIndent(node.getLevel());
-      System.out.println(indent + String.valueOf(node.option) + String.valueOf(node.resolution) + "(" + node.cost + ";" + node.revenue + ") : " + node.revenue.subtract(node.cost) + "\n");
+      System.out.println(indent + String.valueOf(node.option) + getFormattedResolution(node) + "(" + node.cost + ";" + node.revenue + ") : " + node.revenue.subtract(node.cost) + "\n");
     }
 
   }
 
-  public static void printOptimalTreeInfo(TreeNodeNek treeRoot) {
+  public void printOptimalTreeInfo() {
+    TreeNodeNek treeRoot = this.getRoot();
     for (TreeNodeNek node : treeRoot) {
       String indent = createIndent(node.getLevel());
-      System.out.println(indent + String.valueOf(node.option) + String.valueOf(node.resolution) + "(revenue: " + node.revenue + "), optimal options : " + node.bestChoices.toString() + ", choiceRevenues : " + node.choiceRevenue.toString());
+      System.out.println(indent + String.valueOf(node.option) + String.valueOf(getFormattedResolution(node)) + "(revenue: " + node.revenue + "), optimal options : " + node.getChoicesString() + ", choiceRevenues : " + node.choiceRevenue.toString());
     }
 
+  }
+
+  public void printOptimalPlansInfo() {
+    TreeNodeNek treeRoot = this.getRoot();
+    printOptimalPlansInNode(treeRoot);
+    printOptimalPlansHelper(treeRoot.bestChoices, treeRoot.children);
+  }
+
+  private void printOptimalPlansInNode(TreeNodeNek node) {
+    String indent = createIndent(node.getLevel());
+    System.out.println(indent +
+            String.valueOf(node.option) +
+            getFormattedResolution(node) +
+            ": " + node.getChoicesString());
+  }
+
+  private static String getFormattedResolution(TreeNodeNek node) {
+    if (node.resolution == null) {
+      return "";
+    }
+    return node.resolution ? "+" : "-";
+  }
+
+  private void printOptimalPlansHelper(List<Integer> bestParentChoices, List<TreeNodeNek> children) {
+    for (TreeNodeNek child : children) {
+      if (bestParentChoices.contains(child.option) && child.bestChoices.size() > 0) {
+        printOptimalPlansInNode(child);
+        printOptimalPlansHelper(child.bestChoices, child.children);
+      }
+    }
   }
 
   private static String createIndent(int depth) {
@@ -250,24 +281,25 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return null;
   }
 
-  private boolean has3dOptionWithUniqueFirst(ArrayList<BigDecimal> betas) {
+  private boolean has3dOptionWithUniqueFirst(List<BigDecimal> betas) {
     return this.getRoot().bestChoices.contains(3) &&
-            (betas.get(2) != betas.get(1));
+            (!betas.get(2).equals(betas.get(1)));
   }
 
   public boolean has3dOption() {
     return this.getRoot().bestChoices.contains(3);
   }
 
-  public boolean hasOnly3dOption(ArrayList<BigDecimal> betas) {
+  public boolean hasOnly3dOption(List<BigDecimal> betas) {
     return this.getRoot().bestChoices.size() == 1 &&
             has3dOptionWithUniqueFirst(betas);
   }
 
   public String getChoicesString() {
-    return this.bestChoices.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","));
+    return this.bestChoices.toString();
+//            this.bestChoices.stream()
+//            .map(String::valueOf)
+//            .collect(Collectors.joining(","));
   }
 
 }
