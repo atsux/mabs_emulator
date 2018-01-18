@@ -1,6 +1,7 @@
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class OptimalTree {
       BigDecimal optionRevenue = entry.getValue();
       if (compareWithEpsilon(maxRevenue, optionRevenue) < 0) {
         maxRevenue = optionRevenue;
-        node.bestChoices = new ArrayList<>();
+        node.bestChoices = new HashSet<>();
         node.bestChoices.add(entry.getKey());
       } else if (compareWithEpsilon(maxRevenue, optionRevenue) == 0) {
         node.bestChoices.add(entry.getKey());

@@ -1,11 +1,12 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 
 public class TreeNodeNek implements Iterable<TreeNodeNek> {
@@ -16,7 +17,7 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   public BigDecimal revenue;
 
   public Map<Integer, BigDecimal> choiceRevenue = new HashMap<>();
-  public List<Integer> bestChoices = new ArrayList<>();
+  public Set<Integer> bestChoices = new HashSet<>();
 
   public TreeNodeNek parent;
   public List<TreeNodeNek> children;
@@ -167,7 +168,7 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return node.resolution ? "+" : "-";
   }
 
-  private void printOptimalPlansHelper(List<Integer> bestParentChoices, List<TreeNodeNek> children) {
+  private void printOptimalPlansHelper(Set<Integer> bestParentChoices, List<TreeNodeNek> children) {
     for (TreeNodeNek child : children) {
       if (bestParentChoices.contains(child.option) && child.bestChoices.size() > 0) {
         printOptimalPlansInNode(child);
@@ -233,9 +234,6 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   }
 
   public BigDecimal calculateProbability(List<BigDecimal> betas, BigDecimal qu) {
-    if (option == 0) {
-      System.out.println("ERROR: Tried to encode 0 node !!!!!!!!!!!!!!!");
-    }
     BigDecimal probability = one();
 
     if (parent != null) {
