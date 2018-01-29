@@ -148,17 +148,21 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
   }
 
   public void printOptimalPlansInfo() {
-    TreeNodeNek treeRoot = this.getRoot();
-    printOptimalPlansInNode(treeRoot);
-    printOptimalPlansHelper(treeRoot.bestChoices, treeRoot.children);
+    System.out.println(getOptimalPlansInfo());;
   }
 
-  private void printOptimalPlansInNode(TreeNodeNek node) {
+  public String getOptimalPlansInfo() {
+    TreeNodeNek treeRoot = this.getRoot();
+    String result = getOptimalPlansInNode(treeRoot, "");
+    return getOptimalPlansHelper(treeRoot.bestChoices, treeRoot.children, result);
+  }
+
+  private String getOptimalPlansInNode(TreeNodeNek node, String acc) {
     String indent = createIndent(node.getLevel());
-    System.out.println(indent +
+    return acc + indent +
             String.valueOf(node.option) +
             getFormattedResolution(node) +
-            ": " + node.getChoicesString());
+            ": " + node.getChoicesString() + "\n";
   }
 
   private static String getFormattedResolution(TreeNodeNek node) {
@@ -168,13 +172,14 @@ public class TreeNodeNek implements Iterable<TreeNodeNek> {
     return node.resolution ? "+" : "-";
   }
 
-  private void printOptimalPlansHelper(Set<Integer> bestParentChoices, List<TreeNodeNek> children) {
+  private String getOptimalPlansHelper(Set<Integer> bestParentChoices, List<TreeNodeNek> children, String acc) {
     for (TreeNodeNek child : children) {
       if (bestParentChoices.contains(child.option) && child.bestChoices.size() > 0) {
-        printOptimalPlansInNode(child);
-        printOptimalPlansHelper(child.bestChoices, child.children);
+        acc = getOptimalPlansInNode(child, acc);
+        acc = getOptimalPlansHelper(child.bestChoices, child.children, acc);
       }
     }
+    return acc;
   }
 
   private static String createIndent(int depth) {

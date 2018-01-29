@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,74 +17,89 @@ import java.util.stream.Collectors;
 
 public class MainRunner {
 
-  private static final int tau = 6;
+  private static int tau = 4;
   private static final String delta = "0.98";
   private static final String cost = "0.002";
   private static final String qu = "0.7";
-  private static final int BETAS_SIZE = 2;
-  public static final int ROUNDS = 1000;
+  private static final int BETAS_SIZE = 3;
+  private static final int ROUNDS = 1000;
 
   public static void main(String[] args) {
 //    checkspecificBetas();
 
 //    runWithBetasInRange();
 
-    runWithRandomBetas(ROUNDS);
+//    for (int i = 2; i < 11; i++) {
+//      tau = i;
+      runWithRandomBetas(ROUNDS);
 
+//    }
   }
 
   private static void runWithRandomBetas(Integer rounds) {
     Path file = Paths.get("betas");
     Path fileUnique = Paths.get("betas_unique");
-    Map<Set<Integer>, Integer> optimalPlansCounts = new HashMap<>(0);
+    Map<Set<Integer>, Integer> optimalChoicesCounts = new HashMap<>(0);
+    Map<String, Integer> optimalPlansCounts = new HashMap<>(0);
 
     for (int i = 0; i < rounds; i++) {
       List<BigDecimal> betas = generateRandomBetas(BETAS_SIZE);
       TreeNodeNek result = OptimalTree.runCalculation(tau, qu, cost, delta, betas);
 
-      // optimal plans bookkeeping for distribution calculation
-      Integer currentCount = optimalPlansCounts.putIfAbsent(result.getRoot().bestChoices, 1);
+      // optimal choices at root bookkeeping for distribution calculation
+      Integer currentCount = optimalChoicesCounts.putIfAbsent(result.getRoot().bestChoices, 1);
       if (currentCount != null) {
-        optimalPlansCounts.put(result.getRoot().bestChoices, currentCount + 1);
+        optimalChoicesCounts.put(result.getRoot().bestChoices, currentCount + 1);
       }
-      // save betas when 3d option is among optimal plans in the root
-      if (result.has3dOption()) {
-        List<String> message = Arrays.asList(betas.toString(), result.getRoot().getChoicesString());
 
-        try {
-          Files.write(file, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
-          if (result.hasOnly3dOption(betas)) {
-            Files.write(fileUnique, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
-          }
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+
+      // save betas when 3d option is among optimal plans in the root
+//      if (result.has3dOption()) {
+//        List<String> message = Arrays.asList(betas.toString(), result.getRoot().getChoicesString());
+//
+//        try {
+//          Files.write(file, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+//          if (result.hasOnly3dOption(betas)) {
+//            Files.write(fileUnique, message, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+//          }
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
+
+      // optimal plans bookkeeping for distribution calculation
+      final String optimalPlan = result.getOptimalPlansInfo();
+      Integer currentPlansCount = optimalPlansCounts.putIfAbsent(optimalPlan, 1);
+      if (currentPlansCount != null) {
+        optimalPlansCounts.put(optimalPlan, currentPlansCount + 1);
       }
+
 
       //to see progress
-      if (i%100 == 0) {
+      if (i%1000 == 0) {
         System.out.println(i);
       }
 
     }
 
+    printOptimalPlansCounts(optimalChoicesCounts);
     printOptimalPlansCounts(optimalPlansCounts);
 
   }
 
-  private static void printOptimalPlansCounts(Map<Set<Integer>, Integer> optimalPlansCounts) {
+  private static void printOptimalPlansCounts(Map<?, Integer> optimalPlansCounts) {
     Integer sumCounts = optimalPlansCounts.values().parallelStream()
             .reduce(0, Integer::sum);
 
-    Map<Set<Integer>, Double> optimalPlansDistribution = optimalPlansCounts.entrySet().parallelStream()
+    Map<?, Double> optimalPlansDistribution = optimalPlansCounts.entrySet().parallelStream()
             .collect(Collectors.toMap(
                     Map.Entry::getKey,
                     e -> (Double.parseDouble(e.getValue().toString()) / sumCounts)
             ));
     System.out.println("Optimal plans distribution for tau=" + tau + ", beta=" + BETAS_SIZE + ": ");
-    for (Map.Entry e : optimalPlansDistribution.entrySet()) {
-      System.out.println(e.getKey() + ": " + e.getValue());
-    }
+    optimalPlansDistribution.entrySet().stream()
+            .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+            .forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
   }
 
 
@@ -105,15 +122,15 @@ public class MainRunner {
     List<BigDecimal> betas = new ArrayList<>(betasSize);
     betas.add(getRandomBeta("0.0", "1.0"));
     // skewed betas
-    for (int i = 1; i < betasSize; i++) {
-      BigDecimal beta = generateRandomBigDecimalFromRange(zero(), betas.get(betas.size() - 1));
-      betas.add(beta);
-    }
-    // uniformly distributed betas
 //    for (int i = 1; i < betasSize; i++) {
-//      betas.add(getRandomBeta("0.0", "1.0"));
+//      BigDecimal beta = generateRandomBigDecimalFromRange(zero(), betas.get(betas.size() - 1));
+//      betas.add(beta);
 //    }
-//    betas = betas.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
+    // uniformly distributed betas
+    for (int i = 1; i < betasSize; i++) {
+      betas.add(getRandomBeta("0.0", "1.0"));
+    }
+    betas = betas.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
     return betas;
   }
 
